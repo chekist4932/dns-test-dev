@@ -33,7 +33,6 @@ sale = Table(
     metadata,
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('store_id', Integer, ForeignKey('store.id')),
-    Column('total_amount', DECIMAL(precision=10, scale=2), nullable=False),
     Column('sale_date', DateTime, default=datetime.datetime.now(datetime.UTC))
 )
 
