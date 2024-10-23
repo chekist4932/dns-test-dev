@@ -45,19 +45,19 @@ async def get_sales_by_params(filters: SaleFilterParams, session: AsyncSession):
     if filters.sum_above:
         subquery = select(sale_table.c.operation_uid) \
             .group_by(sale_table.c.operation_uid) \
-            .having(func.sum(sale_table.c.total_price) > filters.sum_above).subquery()
+            .having(func.sum(sale_table.c.total_price) > filters.sum_above)
         query = query.filter(sale_table.c.operation_uid.in_(subquery))
 
     if filters.sum_below:
         subquery = select(sale_table.c.operation_uid) \
             .group_by(sale_table.c.operation_uid) \
-            .having(func.sum(sale_table.c.total_price) < filters.sum_below).subquery()
+            .having(func.sum(sale_table.c.total_price) < filters.sum_below)
         query = query.filter(sale_table.c.operation_uid.in_(subquery))
 
     if filters.quantity_above:
         subquery = select(sale_table.c.operation_uid) \
             .group_by(sale_table.c.operation_uid) \
-            .having(func.sum(sale_table.c.quantity) > filters.quantity_above).subquery()
+            .having(func.sum(sale_table.c.quantity) > filters.quantity_above)
         query = query.filter(sale_table.c.operation_uid.in_(subquery))
 
     if filters.quantity_below:
