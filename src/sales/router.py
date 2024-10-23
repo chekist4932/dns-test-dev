@@ -1,8 +1,25 @@
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Query
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.sales.services import get_city_by_id, get_sales_by_params
+from src.sales.schemas import SaleFilterParams
+from src.database import get_async_session
 
 router = APIRouter(prefix='/api', tags=['sales'])
 
 
-@router.get('/sales')
-async def get_sales():
-    return {'message': 'Hello world!'}
+@router.get('/city/{city_id}')
+async def get_city(city_id: int, session: AsyncSession = Depends(get_async_session)):
+    city = await get_city_by_id(city_id, session)
+    return {'message': city}
+
+
+@router.get('/sales/')
+async def get_sale(filter_params: Annotated[SaleFilterParams, Query()],
+                   session: AsyncSession = Depends(get_async_session)):
+    sales = await get_sales_by_params(filter_params, session)
+
+    return sales
