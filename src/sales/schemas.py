@@ -32,12 +32,12 @@ class Sale(BaseModel):
 
 
 class SaleFilterParams(BaseModel):
-    id: Optional[int] = None
+    operation_uid: Optional[int] = None
     city_name: Optional[str] = None
     store_name: Optional[str] = None
     product_name: Optional[str] = None
     days_before: Optional[int] = None
     sum_above: Optional[int] = None
     sum_below: Optional[int] = None
-    product_quantity_above: Optional[int] = None
-    product_quantity_below: Optional[int] = None
+    quantity_above: Optional[int] = None
+    quantity_below: Optional[int] = None
