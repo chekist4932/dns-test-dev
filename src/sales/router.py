@@ -5,8 +5,9 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.sales.services import get_city_by_id, get_sales_by_params, create_product, create_city, update_city_by_id, \
-    delete_city_by_id, get_product_by_id, update_product_by_id, delete_product_by_id
-from src.sales.schemas import SaleFilterParams, SaleItem, ProductCreate, CityCreate
+    delete_city_by_id, get_product_by_id, update_product_by_id, delete_product_by_id, get_store_by_id, create_store, \
+    update_store_by_id, delete_store_by_id
+from src.sales.schemas import SaleFilterParams, SaleItem, ProductCreate, CityCreate, StoreCreate
 from src.database import get_async_session
 
 router = APIRouter(prefix='/api', tags=['sales'])
@@ -33,8 +34,8 @@ async def delete_city(city_id: int, session: AsyncSession = Depends(get_async_se
 
 
 @router.post('/product')
-async def create_new_product(product: ProductCreate, session: AsyncSession = Depends(get_async_session)):
-    return await create_product(product, session)
+async def create_new_product(product_data: ProductCreate, session: AsyncSession = Depends(get_async_session)):
+    return await create_product(product_data, session)
 
 
 @router.get('/product/{product_id}')
@@ -43,13 +44,34 @@ async def get_product(product_id: int, session: AsyncSession = Depends(get_async
 
 
 @router.put("/product/{product_id}")
-async def update_city(product_id: int, product_data: ProductCreate, session: AsyncSession = Depends(get_async_session)):
+async def update_product(product_id: int, product_data: ProductCreate,
+                         session: AsyncSession = Depends(get_async_session)):
     return await update_product_by_id(product_id, product_data, session)
 
 
 @router.delete("/product/{product_id}")
-async def update_city(product_id: int, session: AsyncSession = Depends(get_async_session)):
+async def delete_product(product_id: int, session: AsyncSession = Depends(get_async_session)):
     return await delete_product_by_id(product_id, session)
+
+
+@router.post('/store')
+async def create_new_store(store_data: StoreCreate, session: AsyncSession = Depends(get_async_session)):
+    return await create_store(store_data, session)
+
+
+@router.get('/store/{store_id}')
+async def get_store(store_id: int, session: AsyncSession = Depends(get_async_session)):
+    return await get_store_by_id(store_id, session)
+
+
+@router.put("/store/{store_id}")
+async def update_store(store_id: int, store_data: StoreCreate, session: AsyncSession = Depends(get_async_session)):
+    return await update_store_by_id(store_id, store_data, session)
+
+
+@router.delete("/store/{store_id}")
+async def delete_store(store_id: int, session: AsyncSession = Depends(get_async_session)):
+    return await delete_store_by_id(store_id, session)
 
 
 @router.get('/sales/', response_model=list[SaleItem])
