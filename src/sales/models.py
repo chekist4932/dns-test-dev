@@ -5,7 +5,6 @@ from sqlalchemy.ext.declarative import declarative_base
 
 metadata = MetaData()
 
-
 Base = declarative_base(metadata=metadata)
 
 
@@ -22,7 +21,7 @@ class Store(Base):
     store_id = Column(Integer, primary_key=True, autoincrement=True)
     store_name = Column(String, nullable=False)
 
-    city_id = Column(Integer, ForeignKey('city.city_id'))
+    city_id = Column(Integer, ForeignKey('city.city_id',  ondelete='RESTRICT'))
 
 
 class Product(Base):
@@ -42,8 +41,8 @@ class Sale(Base):
     quantity = Column(Integer, nullable=False)
     total_price = Column(DECIMAL(precision=10, scale=2), nullable=False)
 
-    store_id = Column(Integer, ForeignKey('store.store_id'))
-    product_id = Column(Integer, ForeignKey('product.product_id'))
+    store_id = Column(Integer, ForeignKey('store.store_id', ondelete='RESTRICT'))
+    product_id = Column(Integer, ForeignKey('product.product_id', ondelete='RESTRICT'))
 
 #
 # City = Table(
