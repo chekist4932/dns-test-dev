@@ -19,10 +19,20 @@ class CityModel(CityBase):
         from_attributes = True
 
 
-class StoreModel(BaseModel):
-    id: int
-    name: str
+class StoreBase(BaseModel):
+    store_name: str
     city_id: int
+
+
+class StoreCreate(StoreBase):
+    ...
+
+
+class StoreModel(StoreBase):
+    store_id: int
+
+    class Config:
+        from_attributes = True
 
 
 class ProductBase(BaseModel):
@@ -52,7 +62,7 @@ class SaleModel(BaseModel):
 
 
 class SaleFilterParams(BaseModel):
-    operation_uid: Optional[int] | None = None
+    operation_uid: Optional[int] = None
     city_name: Optional[str] = None
     store_name: Optional[str] = None
     product_name: Optional[str] = None
