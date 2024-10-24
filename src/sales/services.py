@@ -6,8 +6,10 @@ from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.sales.models import City as cityTable, Sale as saleTable, Store as storeTable, Product as productTable
-from src.sales.schemas import CityModel, ProductModel, StoreModel, SaleFilterParams, ProductCreate, CityCreate, \
-    StoreCreate
+from src.sales.schemas import CityModel, ProductModel, StoreModel, SaleModel, ProductCreate, CityCreate, \
+    StoreCreate, SaleCreate, SaleFilterParams, SaleItem
+
+from src.sales.constants import city_not_found, product_not_found, store_not_found, sale_not_found
 
 
 async def get_city_by_id(city_id: int, session: AsyncSession):
@@ -15,15 +17,15 @@ async def get_city_by_id(city_id: int, session: AsyncSession):
     if city:
         return CityModel.from_orm(city)
 
-    raise HTTPException(status_code=404, detail="City not found")
+    raise HTTPException(status_code=404, detail=city_not_found)
 
 
 async def create_city(city_name: str, session: AsyncSession):
     result = await session.execute(select(cityTable).where(cityTable.city_name == city_name))
-    existing_city = result.scalars().first()
+    city = result.scalars().first()
 
-    if existing_city:
-        return existing_city
+    if city:
+        return city
 
     new_city = cityTable(city_name=city_name)
     session.add(new_city)
@@ -41,7 +43,7 @@ async def update_city_by_id(city_id: int, city_data: CityCreate, session: AsyncS
         await session.commit()
 
         return city
-    raise HTTPException(status_code=404, detail="City not found")
+    raise HTTPException(status_code=404, detail=city_not_found)
 
 
 async def delete_city_by_id(city_id: int, session: AsyncSession):
@@ -52,16 +54,16 @@ async def delete_city_by_id(city_id: int, session: AsyncSession):
         await session.commit()
         return CityModel.from_orm(city)
 
-    raise HTTPException(status_code=404, detail="City not found")
+    raise HTTPException(status_code=404, detail=city_not_found)
 
 
 async def create_product(product_data: ProductCreate, session: AsyncSession):
     query = select(productTable).where(and_(productTable.product_name == product_data.product_name,
                                             productTable.price == product_data.price))
-    existing_product = await session.execute(query)
-    existing_product = existing_product.scalars().first()
-    if existing_product:
-        return existing_product
+    product = await session.execute(query)
+    product = product.scalars().first()
+    if product:
+        return product
 
     new_product = productTable(**product_data.model_dump())
     session.add(new_product)
@@ -76,7 +78,7 @@ async def get_product_by_id(product_id: int, session: AsyncSession):
     if product:
         return ProductModel.from_orm(product)
 
-    raise HTTPException(status_code=404, detail="Product not found")
+    raise HTTPException(status_code=404, detail=product_not_found)
 
 
 async def update_product_by_id(product_id: int, product_data: ProductCreate, session: AsyncSession):
@@ -85,9 +87,9 @@ async def update_product_by_id(product_id: int, product_data: ProductCreate, ses
         for key, value in product_data.dict().items():
             setattr(product, key, value)
         await session.commit()
-
         return product
-    raise HTTPException(status_code=404, detail="Product not found")
+
+    raise HTTPException(status_code=404, detail=product_not_found)
 
 
 async def delete_product_by_id(product_id: int, session: AsyncSession):
@@ -98,7 +100,7 @@ async def delete_product_by_id(product_id: int, session: AsyncSession):
         await session.commit()
         return ProductModel.from_orm(product)
 
-    raise HTTPException(status_code=404, detail="Product not found")
+    raise HTTPException(status_code=404, detail=product_not_found)
 
 
 async def get_store_by_id(store_id: int, session: AsyncSession):
@@ -106,7 +108,7 @@ async def get_store_by_id(store_id: int, session: AsyncSession):
     if store:
         return StoreModel.from_orm(store)
 
-    raise HTTPException(status_code=404, detail="Store not found")
+    raise HTTPException(status_code=404, detail=store_not_found)
 
 
 async def create_store(store_data: StoreCreate, session: AsyncSession):
@@ -140,7 +142,7 @@ async def update_store_by_id(store_id: int, store_data: StoreCreate, session: As
         await session.commit()
 
         return store
-    raise HTTPException(status_code=404, detail="Store not found")
+    raise HTTPException(status_code=404, detail=store_not_found)
 
 
 async def delete_store_by_id(store_id: int, session: AsyncSession):
@@ -151,7 +153,67 @@ async def delete_store_by_id(store_id: int, session: AsyncSession):
         await session.commit()
         return StoreModel.from_orm(store)
 
-    raise HTTPException(status_code=404, detail="Store not found")
+    raise HTTPException(status_code=404, detail=store_not_found)
+
+
+async def create_sale(sale_data: SaleCreate, session: AsyncSession):
+    query = select(saleTable).where(
+        and_(saleTable.operation_uid == sale_data.operation_uid,
+             saleTable.sale_date == sale_data.sale_date,
+             saleTable.quantity == sale_data.quantity,
+             saleTable.total_price == sale_data.total_price,
+             saleTable.store_id == sale_data.store_id,
+             saleTable.product_id == sale_data.product_id))
+
+    result = await session.execute(query)
+    sale = result.scalars().first()
+
+    if sale:
+        return sale
+
+    await get_product_by_id(sale_data.product_id, session)
+    await get_store_by_id(sale_data.store_id, session)
+
+    new_sale = saleTable(**sale_data.model_dump())
+    session.add(new_sale)
+    await session.commit()
+    await session.refresh(new_sale)
+
+    return new_sale
+
+
+async def get_sale_by_id(sale_id: int, session: AsyncSession):
+    sale = await session.get(saleTable, sale_id)
+    if sale:
+        return SaleModel.from_orm(sale)
+
+    raise HTTPException(status_code=404, detail=sale_not_found)
+
+
+async def update_sale_by_id(sale_id: int, sale_data: SaleCreate, session: AsyncSession):
+    sale = await session.get(saleTable, sale_id)
+
+    if sale:
+        await get_product_by_id(sale_data.product_id, session)
+        await get_store_by_id(sale_data.store_id, session)
+
+        for key, value in sale_data.dict().items():
+            setattr(sale, key, value)
+        await session.commit()
+
+        return sale
+    raise HTTPException(status_code=404, detail=sale_not_found)
+
+
+async def delete_sale_by_id(sale_id: int, session: AsyncSession):
+    sale = await session.get(saleTable, sale_id)
+
+    if sale:
+        await session.delete(sale)
+        await session.commit()
+        return SaleModel.from_orm(sale)
+
+    raise HTTPException(status_code=404, detail=sale_not_found)
 
 
 async def get_sales_by_params(filters: SaleFilterParams, session: AsyncSession):
@@ -209,4 +271,4 @@ async def get_sales_by_params(filters: SaleFilterParams, session: AsyncSession):
         return []
 
     result = await session.execute(query)
-    return result.mappings().all()
+    return [SaleItem(**item) for item in result.mappings().all()]
