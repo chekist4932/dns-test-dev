@@ -4,24 +4,44 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class City(BaseModel):
-    id: int
-    name: str
+class CityBase(BaseModel):
+    city_name: str
 
 
-class Store(BaseModel):
+class CityCreate(CityBase):
+    ...
+
+
+class CityModel(CityBase):
+    city_id: int
+
+    class Config:
+        from_attributes = True
+
+
+class StoreModel(BaseModel):
     id: int
     name: str
     city_id: int
 
 
-class Product(BaseModel):
-    id: int
-    name: str
-    price: int
+class ProductBase(BaseModel):
+    product_name: str
+    price: float
 
 
-class Sale(BaseModel):
+class ProductCreate(ProductBase):
+    ...
+
+
+class ProductModel(ProductBase):
+    product_id: int
+
+    class Config:
+        from_attributes = True
+
+
+class SaleModel(BaseModel):
     id: int
     operation_uid: int
     sale_date: datetime
