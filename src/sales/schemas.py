@@ -51,14 +51,24 @@ class ProductModel(ProductBase):
         from_attributes = True
 
 
-class SaleModel(BaseModel):
-    id: int
+class SaleBase(BaseModel):
     operation_uid: int
     sale_date: datetime
     quantity: int
     total_price: float
     store_id: int
     product_id: int
+
+
+class SaleCreate(SaleBase):
+    ...
+
+
+class SaleModel(SaleBase):
+    sale_id: int
+
+    class Config:
+        from_attributes = True
 
 
 class SaleFilterParams(BaseModel):
