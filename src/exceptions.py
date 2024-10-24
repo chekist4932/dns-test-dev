@@ -9,7 +9,7 @@ def register_exception_handlers(app: FastAPI):
     async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
         return JSONResponse(
             status_code=500,
-            content={"detail": "A database error occurred."}
+            content={"detail": "A database error occurred.", "exc": f"{exc}"}
         )
 
     @app.exception_handler(HTTPException)
