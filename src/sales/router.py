@@ -6,8 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.sales.services import get_city_by_id, get_sales_by_params, create_product, create_city, update_city_by_id, \
     delete_city_by_id, get_product_by_id, update_product_by_id, delete_product_by_id, get_store_by_id, create_store, \
-    update_store_by_id, delete_store_by_id
-from src.sales.schemas import SaleFilterParams, SaleItem, ProductCreate, CityCreate, StoreCreate
+    update_store_by_id, delete_store_by_id, get_sale_by_id, create_sale, update_sale_by_id, delete_sale_by_id
+
+from src.sales.schemas import SaleFilterParams, ProductCreate, CityCreate, StoreCreate, SaleCreate
 from src.database import get_async_session
 
 router = APIRouter(prefix='/api', tags=['sales'])
@@ -74,7 +75,28 @@ async def delete_store(store_id: int, session: AsyncSession = Depends(get_async_
     return await delete_store_by_id(store_id, session)
 
 
-@router.get('/sales/', response_model=list[SaleItem])
+@router.get('/sale/{sale_id}')
+async def get_sale(sale_id: int,
+                   session: AsyncSession = Depends(get_async_session)):
+    return await get_sale_by_id(sale_id, session)
+
+
+@router.post('/sale')
+async def create_new_sale(sale_data: SaleCreate, session: AsyncSession = Depends(get_async_session)):
+    return await create_sale(sale_data, session)
+
+
+@router.put("/sale/{sale_id}")
+async def update_sale(sale_id: int, sale_data: SaleCreate, session: AsyncSession = Depends(get_async_session)):
+    return await update_sale_by_id(sale_id, sale_data, session)
+
+
+@router.delete('/sale/{sale_id}')
+async def delete_sale(sale_id: int, session: AsyncSession = Depends(get_async_session)):
+    return await delete_sale_by_id(sale_id, session)
+
+
+@router.get('/sales/')
 async def get_sale(filter_params: Annotated[SaleFilterParams, Query()],
                    session: AsyncSession = Depends(get_async_session)):
     return await get_sales_by_params(filter_params, session)
