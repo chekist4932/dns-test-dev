@@ -3,7 +3,6 @@ from datetime import timedelta
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database import get_async_session
 from src.sales.models import city as city_table, sale as sale_table, store as store_table, product as product_table
 from src.sales.schemas import City, SaleFilterParams
 
