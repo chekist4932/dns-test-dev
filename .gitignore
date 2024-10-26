@@ -175,4 +175,3 @@ cython_debug/
 #.idea/
 
 # Alembic migrations
-alembic/versions/
