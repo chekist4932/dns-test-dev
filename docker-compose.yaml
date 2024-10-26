@@ -10,8 +10,8 @@ services:
     - POSTGRES_USER=dns-test-dev-usr
     - POSTGRES_PASSWORD=123456789
     - POSTGRES_DB=dns-test-dev
-    expose: 
-      - 5432
+    ports:
+    - "5433:5432" 
     networks:
       - app_network
 
