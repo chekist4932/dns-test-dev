@@ -28,6 +28,7 @@ async def create_city(city_name: str, session: AsyncSession):
         return city
 
     new_city = cityTable(city_name=city_name)
+
     session.add(new_city)
     await session.commit()
     await session.refresh(new_city)
@@ -62,10 +63,12 @@ async def create_product(product_data: ProductCreate, session: AsyncSession):
                                             productTable.price == product_data.price))
     product = await session.execute(query)
     product = product.scalars().first()
+
     if product:
         return product
 
     new_product = productTable(**product_data.model_dump())
+
     session.add(new_product)
     await session.commit()
     await session.refresh(new_product)
@@ -112,6 +115,8 @@ async def get_store_by_id(store_id: int, session: AsyncSession):
 
 
 async def create_store(store_data: StoreCreate, session: AsyncSession):
+    await get_city_by_id(store_data.city_id, session)
+
     query = select(storeTable).where(
         and_(storeTable.store_name == store_data.store_name, storeTable.city_id == store_data.city_id))
 
@@ -121,9 +126,8 @@ async def create_store(store_data: StoreCreate, session: AsyncSession):
     if store:
         return store
 
-    await get_city_by_id(store_data.city_id, session)
-
     new_store = storeTable(**store_data.model_dump())
+
     session.add(new_store)
     await session.commit()
     await session.refresh(new_store)
@@ -157,6 +161,9 @@ async def delete_store_by_id(store_id: int, session: AsyncSession):
 
 
 async def create_sale(sale_data: SaleCreate, session: AsyncSession):
+    await get_product_by_id(sale_data.product_id, session)
+    await get_store_by_id(sale_data.store_id, session)
+
     query = select(saleTable).where(
         and_(saleTable.operation_uid == sale_data.operation_uid,
              saleTable.sale_date == sale_data.sale_date,
@@ -171,10 +178,8 @@ async def create_sale(sale_data: SaleCreate, session: AsyncSession):
     if sale:
         return sale
 
-    await get_product_by_id(sale_data.product_id, session)
-    await get_store_by_id(sale_data.store_id, session)
-
     new_sale = saleTable(**sale_data.model_dump())
+
     session.add(new_sale)
     await session.commit()
     await session.refresh(new_sale)
