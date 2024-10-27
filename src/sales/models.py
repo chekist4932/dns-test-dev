@@ -33,7 +33,7 @@ class Product(Base):
 
     product_id = Column(Integer, primary_key=True, autoincrement=True)
     product_name = Column(String, nullable=False)
-    price = Column(DECIMAL(precision=10, scale=2), nullable=False)
+    price = Column(DECIMAL(precision=32, scale=2), nullable=False)
 
     __table_args__ = (UniqueConstraint('product_name', 'price'),)
 
@@ -45,7 +45,7 @@ class Sale(Base):
     operation_uid = Column(Integer, nullable=False)
     sale_date = Column(DateTime, default=datetime.now(UTC))
     quantity = Column(Integer, nullable=False)
-    total_price = Column(DECIMAL(precision=10, scale=2), nullable=False)
+    total_price = Column(DECIMAL(precision=32, scale=2), nullable=False)
 
     store_id = Column(Integer, ForeignKey('store.store_id', ondelete='RESTRICT'))
     product_id = Column(Integer, ForeignKey('product.product_id', ondelete='RESTRICT'))
