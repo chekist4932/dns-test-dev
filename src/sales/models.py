@@ -1,6 +1,6 @@
 from datetime import datetime, UTC
 
-from sqlalchemy import MetaData, Column, Integer, String, ForeignKey, DateTime, DECIMAL
+from sqlalchemy import MetaData, Column, Integer, String, ForeignKey, DateTime, DECIMAL, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 
 metadata = MetaData()
@@ -14,6 +14,8 @@ class City(Base):
     city_id = Column(Integer, primary_key=True, autoincrement=True)
     city_name = Column(String, nullable=False)
 
+    __table_args__ = (UniqueConstraint('city_name'),)
+
 
 class Store(Base):
     __tablename__ = 'store'
@@ -21,7 +23,9 @@ class Store(Base):
     store_id = Column(Integer, primary_key=True, autoincrement=True)
     store_name = Column(String, nullable=False)
 
-    city_id = Column(Integer, ForeignKey('city.city_id',  ondelete='RESTRICT'))
+    city_id = Column(Integer, ForeignKey('city.city_id', ondelete='RESTRICT'))
+
+    __table_args__ = (UniqueConstraint('store_name', 'city_id'),)
 
 
 class Product(Base):
@@ -30,6 +34,8 @@ class Product(Base):
     product_id = Column(Integer, primary_key=True, autoincrement=True)
     product_name = Column(String, nullable=False)
     price = Column(DECIMAL(precision=10, scale=2), nullable=False)
+
+    __table_args__ = (UniqueConstraint('product_name', 'price'),)
 
 
 class Sale(Base):
@@ -43,6 +49,9 @@ class Sale(Base):
 
     store_id = Column(Integer, ForeignKey('store.store_id', ondelete='RESTRICT'))
     product_id = Column(Integer, ForeignKey('product.product_id', ondelete='RESTRICT'))
+
+    __table_args__ = (
+        UniqueConstraint('operation_uid', 'sale_date', 'quantity', 'total_price', 'store_id', 'product_id'),)
 
 #
 # City = Table(
