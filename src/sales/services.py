@@ -21,12 +21,6 @@ async def get_city_by_id(city_id: int, session: AsyncSession):
 
 
 async def create_city(city_name: str, session: AsyncSession):
-    # result = await session.execute(select(cityTable).where(cityTable.city_name == city_name))
-    # city = result.scalars().first()
-    #
-    # if city:
-    #     return city
-
     new_city = cityTable(city_name=city_name)
 
     session.add(new_city)
@@ -59,14 +53,6 @@ async def delete_city_by_id(city_id: int, session: AsyncSession):
 
 
 async def create_product(product_data: ProductCreate, session: AsyncSession):
-    # query = select(productTable).where(and_(productTable.product_name == product_data.product_name,
-    #                                         productTable.price == product_data.price))
-    # product = await session.execute(query)
-    # product = product.scalars().first()
-    #
-    # if product:
-    #     return product
-
     new_product = productTable(**product_data.model_dump())
 
     session.add(new_product)
@@ -115,17 +101,6 @@ async def get_store_by_id(store_id: int, session: AsyncSession):
 
 
 async def create_store(store_data: StoreCreate, session: AsyncSession):
-    # await get_city_by_id(store_data.city_id, session)
-
-    # query = select(storeTable).where(
-    #     and_(storeTable.store_name == store_data.store_name, storeTable.city_id == store_data.city_id))
-    #
-    # result = await session.execute(query)
-    # store = result.scalars().first()
-    #
-    # if store:
-    #     return store
-
     new_store = storeTable(**store_data.model_dump())
 
     session.add(new_store)
@@ -139,8 +114,6 @@ async def update_store_by_id(store_id: int, store_data: StoreCreate, session: As
     store = await session.get(storeTable, store_id)
 
     if store:
-        # await get_city_by_id(store_data.city_id, session)
-
         for key, value in store_data.dict().items():
             setattr(store, key, value)
         await session.commit()
@@ -161,23 +134,6 @@ async def delete_store_by_id(store_id: int, session: AsyncSession):
 
 
 async def create_sale(sale_data: SaleCreate, session: AsyncSession):
-    # await get_product_by_id(sale_data.product_id, session)
-    # await get_store_by_id(sale_data.store_id, session)
-
-    # query = select(saleTable).where(
-    #     and_(saleTable.operation_uid == sale_data.operation_uid,
-    #          saleTable.sale_date == sale_data.sale_date,
-    #          saleTable.quantity == sale_data.quantity,
-    #          saleTable.total_price == sale_data.total_price,
-    #          saleTable.store_id == sale_data.store_id,
-    #          saleTable.product_id == sale_data.product_id))
-    #
-    # result = await session.execute(query)
-    # sale = result.scalars().first()
-    #
-    # if sale:
-    #     return sale
-
     new_sale = saleTable(**sale_data.model_dump())
 
     session.add(new_sale)
@@ -199,9 +155,6 @@ async def update_sale_by_id(sale_id: int, sale_data: SaleCreate, session: AsyncS
     sale = await session.get(saleTable, sale_id)
 
     if sale:
-        # await get_product_by_id(sale_data.product_id, session)
-        # await get_store_by_id(sale_data.store_id, session)
-
         for key, value in sale_data.dict().items():
             setattr(sale, key, value)
         await session.commit()
