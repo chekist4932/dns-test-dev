@@ -1,3 +1,5 @@
+For fill database test data.
+
 1. cd sql-scripts
 
 2. docker-compose up -d --build
